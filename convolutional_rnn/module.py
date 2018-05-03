@@ -112,10 +112,11 @@ class ConvNdRNNBase(torch.nn.Module):
             raise RuntimeError(
                 'input must have {} dimensions, got {}'.format(
                     expected_input_dim, input.dim()))
-        if self.in_channels != input.size(1 if is_input_packed else 2):
+        ch_dim = 1 if is_input_packed else 2
+        if self.in_channels != input.size(ch_dim):
             raise RuntimeError(
                 'input.size({}) must be equal to in_channels . Expected {}, got {}'.format(
-                    1 if is_input_packed else 2, self.in_channels, input.size(1 if is_input_packed else 2)))
+                    ch_dim, self.in_channels, input.size(ch_dim)))
 
         if is_input_packed:
             mini_batch = int(batch_sizes[0])
@@ -124,7 +125,7 @@ class ConvNdRNNBase(torch.nn.Module):
 
         num_directions = 2 if self.bidirectional else 1
         expected_hidden_size = (self.num_layers * num_directions,
-                                mini_batch, self.out_channels) + input.shape[2 if is_input_packed else 3:]
+                                mini_batch, self.out_channels) + input.shape[ch_dim + 1:]
 
         def check_hidden_size(hx, expected_hidden_size, msg='Expected hidden size {}, got {}'):
             if tuple(hx.size()) != expected_hidden_size:
