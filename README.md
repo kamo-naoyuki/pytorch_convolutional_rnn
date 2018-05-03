@@ -1,6 +1,6 @@
 # pytorch_convolutional_rnn
 ## Require
-- python3
+- python3 (Not supporting python2 because I prefer type annotation)
 - pytorch>=0.4
 
 ## Feature
