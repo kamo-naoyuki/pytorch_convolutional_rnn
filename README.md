@@ -5,7 +5,7 @@
 
 ## Feature
 - Autograd version
-- RNN, LSTM, Peephole LSTM, GRU
+- Convolutional RNN, Convolutional LSTM, Convolutional Peephole LSTM, Convolutional GRU
 - Unidirectional, Bidirectional
 - 1d, 2d, 3d
 - Supporting PackedSequence
