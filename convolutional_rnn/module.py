@@ -141,8 +141,8 @@ class ConvNdRNNBase(torch.nn.Module):
             output = PackedSequence(output, batch_sizes)
         return output, hidden
 
-    def __repr__(self):
-        s = ('{name}({in_channels}, {out_channels}, kernel_size={kernel_size}'
+    def extra_repr(self):
+        s = ('{in_channels}, {out_channels}, kernel_size={kernel_size}'
              ', stride={stride}')
         if self.dilation != (1,) * len(self.dilation):
             s += ', dilation={dilation}'
@@ -158,8 +158,7 @@ class ConvNdRNNBase(torch.nn.Module):
             s += ', dropout={dropout}'
         if self.bidirectional is not False:
             s += ', bidirectional={bidirectional}'
-        s += ')'
-        return s.format(name=self.__class__.__name__, **self.__dict__)
+        return s.format(**self.__dict__)
 
     def __setstate__(self, d):
         super(ConvNdRNNBase, self).__setstate__(d)
