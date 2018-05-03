@@ -9,6 +9,7 @@
 - Unidirectional, Bidirectional
 - 1d, 2d, 3d
 - Supporting PackedSequence
+- RNN Cell
 
 ## Example
 ```python
@@ -22,4 +23,15 @@ x = pack_padded_sequence(torch.randn(3, 2, 2, 10, 14, 18), [3, 1])
 print(net)
 y, h = net(x)
 print(y.data.shape)
+
+
+cell = convolutional_rnn.Conv2dLSTMCell(3, 5, 3).cuda()
+time = 6
+input = torch.randn(time, 16, 3, 10, 10).cuda()
+hx = None
+output = []
+for i in range(time):
+    hx = cell(input[i], hx)
+    output.append(hx)
+
 ```
