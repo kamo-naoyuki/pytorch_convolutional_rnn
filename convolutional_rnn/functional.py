@@ -204,9 +204,10 @@ def ConvNdWithSamePadding(convndim=2, stride=1, dilation=1, groups=1):
         else:
             raise ValueError('convndim must be 1, 2, or 3, but got {}'.format(convndim))
         if input.dim() != convndim + 2:
-            raise RuntimeError(f'Input dim must be {convndim + 2}, bot got {input.dim()}')
+            raise RuntimeError('Input dim must be {}, bot got {}'
+                               .format(convndim + 2, input.dim()))
         if w.dim() != convndim + 2:
-            raise RuntimeError(f'w must be {convndim + 2}, bot got {w.dim()}')
+            raise RuntimeError('w must be {}, bot got {}'.format(convndim + 2, w.dim()))
 
         insize = input.shape[2:]
         kernel_size = w.shape[2:]
@@ -217,7 +218,7 @@ def ConvNdWithSamePadding(convndim=2, stride=1, dilation=1, groups=1):
               for h, k, s, d in list(zip(insize, kernel_size, _stride, _dilation))[::-1] for i in range(2)]
         # Padding to make the output shape to have the same shape as the input
         input = F.pad(input, ps, 'constant', 0)
-        return getattr(F, f'conv{convndim}d')(
+        return getattr(F, 'conv{}d'.format(convndim))(
             input, w, b, stride=_stride, padding=ntuple(0), dilation=_dilation, groups=groups)
     return forward
 
