@@ -28,10 +28,12 @@ print(y.data.shape)
 cell = convolutional_rnn.Conv2dLSTMCell(3, 5, 3).cuda()
 time = 6
 input = torch.randn(time, 16, 3, 10, 10).cuda()
-hx = None
 output = []
 for i in range(time):
-    hx = cell(input[i], hx)
+    if i == 0:
+        hx, cx = cell(input[i], None)
+    else:
+        hx, cx = cell(input[i], (hx, cx))
     output.append(hx)
 
 ```
