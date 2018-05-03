@@ -1,9 +1,14 @@
 # pytorch_convolutional_rnn
 ## Require
+- python3
 - pytorch>=0.4
+
 ## Feature
-- RNN, LSTM, GRU
+- Autograd version
+- RNN, LSTM, Peephole LSTM, GRU
+- Unidirectional, Bidirectional
 - 1d, 2d, 3d
+- Supporting PackedSequence
 
 ## Example
 ```python

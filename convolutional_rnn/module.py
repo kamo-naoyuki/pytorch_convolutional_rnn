@@ -52,7 +52,7 @@ class ConvNdRNNBase(torch.nn.Module):
 
         num_directions = 2 if bidirectional else 1
 
-        if mode == 'LSTM':
+        if mode in ('LSTM', 'PeepholeLSTM'):
             gate_size = 4 * out_channels
         elif mode == 'GRU':
             gate_size = 3 * out_channels
@@ -68,12 +68,30 @@ class ConvNdRNNBase(torch.nn.Module):
 
                 b_ih = Parameter(torch.Tensor(gate_size))
                 b_hh = Parameter(torch.Tensor(gate_size))
-                layer_params = (w_ih, w_hh, b_ih, b_hh)
+
+                if mode == 'PeepholeLSTM':
+                    w_pi = Parameter(torch.Tensor(out_channels, out_channels // groups, *self.kernel_size))
+                    w_pf = Parameter(torch.Tensor(out_channels, out_channels // groups, *self.kernel_size))
+                    w_po = Parameter(torch.Tensor(out_channels, out_channels // groups, *self.kernel_size))
+
+                    b_pi = Parameter(torch.Tensor(out_channels))
+                    b_pf = Parameter(torch.Tensor(out_channels))
+                    b_po = Parameter(torch.Tensor(out_channels))
+
+                    layer_params = (w_ih, w_hh, w_pi, w_pf, w_po, b_ih, b_hh, b_pi, b_pf, b_po)
+                    param_names = ['weight_ih_l{}{}', 'weight_hh_l{}{}',
+                                   'weight_pi_l{}{}', 'weight_pf_l{}{}', 'weight_po_l{}{}']
+                    if bias:
+                        param_names += ['bias_ih_l{}{}', 'bias_hh_l{}{}',
+                                        'bias_pi_l{}{}', 'bias_pf_l{}{}', 'bias_po_l{}{}']
+                else:
+                    layer_params = (w_ih, w_hh, b_ih, b_hh)
+
+                    param_names = ['weight_ih_l{}{}', 'weight_hh_l{}{}']
+                    if bias:
+                        param_names += ['bias_ih_l{}{}', 'bias_hh_l{}{}']
 
                 suffix = '_reverse' if direction == 1 else ''
-                param_names = ['weight_ih_l{}{}', 'weight_hh_l{}{}']
-                if bias:
-                    param_names += ['bias_ih_l{}{}', 'bias_hh_l{}{}']
                 param_names = [x.format(layer, suffix) for x in param_names]
 
                 for name, param in zip(param_names, layer_params):
@@ -102,7 +120,7 @@ class ConvNdRNNBase(torch.nn.Module):
             num_directions = 2 if self.bidirectional else 1
             hx = input.new_zeros(self.num_layers * num_directions, max_batch_size, self.out_channels,
                                  *insize, requires_grad=False)
-            if self.mode == 'LSTM':
+            if self.mode in ('LSTM', 'PeepholeLSTM'):
                 hx = (hx, hx)
 
         func = AutogradConvRNN(
@@ -155,13 +173,19 @@ class ConvNdRNNBase(torch.nn.Module):
         for layer in range(num_layers):
             for direction in range(num_directions):
                 suffix = '_reverse' if direction == 1 else ''
-                weights = ['weight_ih_l{}{}', 'weight_hh_l{}{}',
-                           'bias_ih_l{}{}', 'bias_hh_l{}{}']
+                if self.mode == 'PeepholeLSTM':
+                    weights = ['weight_ih_l{}{}', 'weight_hh_l{}{}',
+                               'weight_pi_l{}{}', 'weight_pf_l{}{}', 'weight_po_l{}{}',
+                               'bias_ih_l{}{}', 'bias_hh_l{}{}',
+                               'bias_pi_l{}{}', 'bias_pf_l{}{}', 'bias_po_l{}{}']
+                else:
+                    weights = ['weight_ih_l{}{}', 'weight_hh_l{}{}',
+                               'bias_ih_l{}{}', 'bias_hh_l{}{}']
                 weights = [x.format(layer, suffix) for x in weights]
                 if self.bias:
                     self._all_weights += [weights]
                 else:
-                    self._all_weights += [weights[:2]]
+                    self._all_weights += [weights[:len(weights) // 2]]
 
     @property
     def all_weights(self):
@@ -190,6 +214,35 @@ class Conv1dRNN(ConvNdRNNBase):
             raise ValueError("Unknown nonlinearity '{}'".format(nonlinearity))
         super().__init__(
             mode=mode,
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            num_layers=num_layers,
+            bias=bias,
+            batch_first=batch_first,
+            dropout=dropout,
+            bidirectional=bidirectional,
+            convndim=1,
+            stride=stride,
+            dilation=dilation,
+            groups=groups)
+
+
+class Conv1dPeepholeLSTM(ConvNdRNNBase):
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: Union[int, Sequence[int]],
+                 num_layers: int=1,
+                 bias: bool=True,
+                 batch_first: bool=False,
+                 dropout: float=0.,
+                 bidirectional: bool=False,
+                 stride: Union[int, Sequence[int]]=1,
+                 dilation: Union[int, Sequence[int]]=1,
+                 groups: int=1):
+        super().__init__(
+            mode='PeepholeLSTM',
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=kernel_size,
@@ -327,6 +380,35 @@ class Conv2dLSTM(ConvNdRNNBase):
             groups=groups)
 
 
+class Conv2dPeepholeLSTM(ConvNdRNNBase):
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: Union[int, Sequence[int]],
+                 num_layers: int=1,
+                 bias: bool=True,
+                 batch_first: bool=False,
+                 dropout: float=0.,
+                 bidirectional: bool=False,
+                 stride: Union[int, Sequence[int]]=1,
+                 dilation: Union[int, Sequence[int]]=1,
+                 groups: int=1):
+        super().__init__(
+            mode='PeepholeLSTM',
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            num_layers=num_layers,
+            bias=bias,
+            batch_first=batch_first,
+            dropout=dropout,
+            bidirectional=bidirectional,
+            convndim=2,
+            stride=stride,
+            dilation=dilation,
+            groups=groups)
+
+
 class Conv2dGRU(ConvNdRNNBase):
     def __init__(self,
                  in_channels: int,
@@ -407,6 +489,35 @@ class Conv3dLSTM(ConvNdRNNBase):
                  groups: int=1):
         super().__init__(
             mode='LSTM',
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            num_layers=num_layers,
+            bias=bias,
+            batch_first=batch_first,
+            dropout=dropout,
+            bidirectional=bidirectional,
+            convndim=3,
+            stride=stride,
+            dilation=dilation,
+            groups=groups)
+
+
+class Conv3dPeepholeLSTM(ConvNdRNNBase):
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: Union[int, Sequence[int]],
+                 num_layers: int=1,
+                 bias: bool=True,
+                 batch_first: bool=False,
+                 dropout: float=0.,
+                 bidirectional: bool=False,
+                 stride: Union[int, Sequence[int]]=1,
+                 dilation: Union[int, Sequence[int]]=1,
+                 groups: int=1):
+        super().__init__(
+            mode='PeepholeLSTM',
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=kernel_size,
