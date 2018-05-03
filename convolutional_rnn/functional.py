@@ -6,17 +6,17 @@ import torch.nn.functional as F
 from .utils import _single, _pair, _triple
 
 
-def ArbitraryRNNReLUCell(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, linear_func=None):
+def RNNReLUCell(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, linear_func=None):
     hy = F.relu(linear_func(input, w_ih, b_ih) + linear_func(hidden, w_hh, b_hh))
     return hy
 
 
-def ArbitraryRNNTanhCell(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, linear_func=None):
+def RNNTanhCell(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, linear_func=None):
     hy = F.tanh(linear_func(input, w_ih, b_ih) + linear_func(hidden, w_hh, b_hh))
     return hy
 
 
-def ArbitraryLSTMCell(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, linear_func=None):
+def LSTMCell(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, linear_func=None):
     hx, cx = hidden
     gates = linear_func(input, w_ih, b_ih) + linear_func(hx, w_hh, b_hh)
     ingate, forgetgate, cellgate, outgate = gates.chunk(4, 1)
@@ -32,7 +32,7 @@ def ArbitraryLSTMCell(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, linear_fu
     return hy, cy
 
 
-def ArbitraryGRUCell(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, linear_func=None):
+def GRUCell(input, hidden, w_ih, w_hh, b_ih=None, b_hh=None, linear_func=None):
     gi = linear_func(input, w_ih, b_ih)
     gh = linear_func(hidden, w_hh, b_hh)
     i_r, i_i, i_n = gi.chunk(3, 1)
@@ -226,13 +226,13 @@ def _conv_cell_helper(mode, convndim=2, stride=1, dilation=1, groups=1):
     linear_func = ConvNdWithSamePadding(convndim=convndim, stride=stride, dilation=dilation, groups=groups)
 
     if mode == 'RNN_RELU':
-        cell = partial(ArbitraryRNNReLUCell, linear_func=linear_func)
+        cell = partial(RNNReLUCell, linear_func=linear_func)
     elif mode == 'RNN_TANH':
-        cell = partial(ArbitraryRNNTanhCell, linear_func=linear_func)
+        cell = partial(RNNTanhCell, linear_func=linear_func)
     elif mode == 'LSTM':
-        cell = partial(ArbitraryLSTMCell, linear_func=linear_func)
+        cell = partial(LSTMCell, linear_func=linear_func)
     elif mode == 'GRU':
-        cell = partial(ArbitraryGRUCell, linear_func=linear_func)
+        cell = partial(GRUCell, linear_func=linear_func)
     else:
         raise Exception('Unknown mode: {}'.format(mode))
     return cell
