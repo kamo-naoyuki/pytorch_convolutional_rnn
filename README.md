@@ -31,7 +31,7 @@ input = torch.randn(time, 16, 3, 10, 10).cuda()
 output = []
 for i in range(time):
     if i == 0:
-        hx, cx = cell(input[i], None)
+        hx, cx = cell(input[i])
     else:
         hx, cx = cell(input[i], (hx, cx))
     output.append(hx)
