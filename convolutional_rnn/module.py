@@ -717,7 +717,7 @@ class ConvRNNCellBase(torch.nn.Module):
             stride=self.stride,
             dilation=self.dilation,
             groups=self.groups)
-        if self.mode == "PeepholeLSTMCell":
+        if self.mode == 'PeepholeLSTM':
             return cell(
                 input, hx,
                 self.weight_ih, self.weight_hh, self.weight_pi, self.weight_pf, self.weight_po,
