@@ -29,8 +29,8 @@ import torch
 import convolutional_rnn
 from torch.nn.utils.rnn import pack_padded_sequence
 
-net = convolutional_rnn.Conv3dGRU(in_channels=2,  # Correspond to input size
-                                  out_channels=5,  # Correspond to hidden size
+net = convolutional_rnn.Conv3dGRU(in_channels=2,  # Corresponds to input size
+                                  out_channels=5,  # Corresponds to hidden size
                                   kernel_size=(3, 4, 6),  # Int or List[int]
                                   num_layers=3,
                                   bidirectional=True,
