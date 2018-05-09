@@ -15,7 +15,7 @@ I implemented ``AutogradConvRNN`` by referring to ``AutogradRNN`` at https://git
 - pytorch>=0.4
 
 ## Feature
-- Implemented at python level, without any additional CUDA kernel, c++ cocds.
+- Implemented at python level, without any additional CUDA kernel, c++ codes.
 - Convolutional RNN, Convolutional LSTM, Convolutional Peephole LSTM, Convolutional GRU
 - Unidirectional, Bidirectional
 - 1d, 2d, 3d
