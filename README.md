@@ -9,7 +9,7 @@ However, there are no modules supporting neither variable length tensor nor bidi
 
 I implemented ``AutogradConvRNN`` by referring to ``AutogradRNN`` at https://github.com/pytorch/pytorch/blob/master/torch/nn/_functions/rnn.py, so my convolutional RNN modules have similar structure to ``torch.nn.RNN`` and supports the above features as it has.
 
-The benefit of using ``AutogradConvRNN`` is not only that it enables my modules have the same interface as ``torch.nn.RNN``, but makes it very easy to implement many kinds of CRNN, such as ``CLSTM``, ``CGRU``.
+The benefit of using ``AutogradConvRNN`` is not only that it enables my modules to have the same interface as ``torch.nn.RNN``, but makes it very easy to implement many kinds of CRNN, such as ``CLSTM``, ``CGRU``.
 
 ## Require
 - python3 (Not supporting python2 because I prefer type annotation)
