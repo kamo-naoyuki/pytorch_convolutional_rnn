@@ -7,8 +7,9 @@ The pytorch implemenation for convolutional rnn is alreaedy exisitng other than 
 
 However, there are no modules supporting neither variable length tensor nor bidirectional rnn.
 
-I implemented ``AutogradConvRNN`` by referring to ``AutogradRNN`` at https://github.com/pytorch/pytorch/blob/master/torch/nn/_functions/rnn.py
-, so my convolutional RNN module has similar structure to the orignal RNN module and supports the above features.
+I implemented ``AutogradConvRNN`` by referring to ``AutogradRNN`` at https://github.com/pytorch/pytorch/blob/master/torch/nn/_functions/rnn.py, so my convolutional RNN modules have similar structure to ``torch.nn.RNN`` and supports the above features as it has.
+
+The benefit of `AutogradConvRNN`` is not only that it can the same interface as ``torch.nn.RNN``, but makes it very easy to implement many kinds of CRNN, such as ``CLSTM``, ``CGRU``.
 
 ## Require
 - python3 (Not supporting python2 because I prefer type annotation)
@@ -32,7 +33,7 @@ from torch.nn.utils.rnn import pack_padded_sequence
 net = convolutional_rnn.Conv3dGRU(in_channels=2,  # Corresponds to input size
                                   out_channels=5,  # Corresponds to hidden size
                                   kernel_size=(3, 4, 6),  # Int or List[int]
-                                  num_layers=3,
+                                  num_layers=2,
                                   bidirectional=True,
                                   dilation=2, stride=2, dropout=0.5)
 x = pack_padded_sequence(torch.randn(3, 2, 2, 10, 14, 18), [3, 1])
