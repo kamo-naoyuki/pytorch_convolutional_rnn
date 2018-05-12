@@ -73,23 +73,14 @@ class ConvNdRNNBase(torch.nn.Module):
                     w_pi = Parameter(torch.Tensor(out_channels, out_channels // groups, *self.kernel_size))
                     w_pf = Parameter(torch.Tensor(out_channels, out_channels // groups, *self.kernel_size))
                     w_po = Parameter(torch.Tensor(out_channels, out_channels // groups, *self.kernel_size))
-
-                    b_pi = Parameter(torch.Tensor(out_channels))
-                    b_pf = Parameter(torch.Tensor(out_channels))
-                    b_po = Parameter(torch.Tensor(out_channels))
-
-                    layer_params = (w_ih, w_hh, w_pi, w_pf, w_po, b_ih, b_hh, b_pi, b_pf, b_po)
+                    layer_params = (w_ih, w_hh, w_pi, w_pf, w_po, b_ih, b_hh)
                     param_names = ['weight_ih_l{}{}', 'weight_hh_l{}{}',
                                    'weight_pi_l{}{}', 'weight_pf_l{}{}', 'weight_po_l{}{}']
-                    if bias:
-                        param_names += ['bias_ih_l{}{}', 'bias_hh_l{}{}',
-                                        'bias_pi_l{}{}', 'bias_pf_l{}{}', 'bias_po_l{}{}']
                 else:
                     layer_params = (w_ih, w_hh, b_ih, b_hh)
-
                     param_names = ['weight_ih_l{}{}', 'weight_hh_l{}{}']
-                    if bias:
-                        param_names += ['bias_ih_l{}{}', 'bias_hh_l{}{}']
+                if bias:
+                    param_names += ['bias_ih_l{}{}', 'bias_hh_l{}{}']
 
                 suffix = '_reverse' if direction == 1 else ''
                 param_names = [x.format(layer, suffix) for x in param_names]
@@ -210,8 +201,7 @@ class ConvNdRNNBase(torch.nn.Module):
                 if self.mode == 'PeepholeLSTM':
                     weights = ['weight_ih_l{}{}', 'weight_hh_l{}{}',
                                'weight_pi_l{}{}', 'weight_pf_l{}{}', 'weight_po_l{}{}',
-                               'bias_ih_l{}{}', 'bias_hh_l{}{}',
-                               'bias_pi_l{}{}', 'bias_pf_l{}{}', 'bias_po_l{}{}']
+                               'bias_ih_l{}{}', 'bias_hh_l{}{}']
                 else:
                     weights = ['weight_ih_l{}{}', 'weight_hh_l{}{}',
                                'bias_ih_l{}{}', 'bias_hh_l{}{}']
