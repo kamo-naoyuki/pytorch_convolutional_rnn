@@ -640,14 +640,6 @@ class ConvRNNCellBase(torch.nn.Module):
             self.weight_pi = Parameter(torch.Tensor(out_channels, out_channels // groups, *self.kernel_size))
             self.weight_pf = Parameter(torch.Tensor(out_channels, out_channels // groups, *self.kernel_size))
             self.weight_po = Parameter(torch.Tensor(out_channels, out_channels // groups, *self.kernel_size))
-            if bias:
-                self.bias_pi = Parameter(torch.Tensor(out_channels))
-                self.bias_pf = Parameter(torch.Tensor(out_channels))
-                self.bias_po = Parameter(torch.Tensor(out_channels))
-            else:
-                self.register_parameter('bias_pi', None)
-                self.register_parameter('bias_pf', None)
-                self.register_parameter('bias_po', None)
 
         self.reset_parameters()
 
@@ -711,7 +703,7 @@ class ConvRNNCellBase(torch.nn.Module):
             return cell(
                 input, hx,
                 self.weight_ih, self.weight_hh, self.weight_pi, self.weight_pf, self.weight_po,
-                self.bias_ih, self.bias_hh, self.bias_pi, self.bias_pf, self.bias_po,
+                self.bias_ih, self.bias_hh
             )
         else:
             return cell(
