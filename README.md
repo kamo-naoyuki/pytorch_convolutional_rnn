@@ -13,7 +13,7 @@ The benefit of using ``AutogradConvRNN`` is not only that it enables my modules 
 
 ## Require
 - python3 (Not supporting python2 because I prefer type annotation)
-- pytorch>=0.4
+- pytorch0.4.0, python1.0.0
 
 ## Feature
 - Implemented at python level, without any additional CUDA kernel, c++ codes.
