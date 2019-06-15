@@ -59,7 +59,8 @@ net = convolutional_rnn.Conv2dLSTM(in_channels=in_channels,  # Corresponds to in
                                    kernel_size=3,  # Int or List[int]
                                    num_layers=2,
                                    bidirectional=True,
-                                   dilation=2, stride=2, dropout=0.5)
+                                   dilation=2, stride=2, dropout=0.5,
+                                   batch_first=True)
 length = 3
 batchsize = 2
 shape = (10, 14)
